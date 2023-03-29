@@ -1,49 +1,119 @@
-import {SocialMediaLinks, Teams} from "./consts.js"
+import { MediaLink, Player, Team } from "./types.js";
+import { Teams, SocialMediaLinks } from "./consts.js";
 
-export default class AppUI{
-    public uiElement : Element;
-    protected footerLinks = SocialMediaLinks;
-    protected teams = Teams;
+export default abstract class AppUI{
+    protected _rootElement : Element | null;
+    protected _interfaceHTML : HTMLElement;
+    protected _teams: Team [] = Teams;
+    protected _footerLinks: MediaLink [] = SocialMediaLinks;
 
-    constructor(
-        sumbitHandler: (e: Event)=>void
-    ){
-        // App section wrapper
-        this.uiElement = document.createElement("div");
-        this.uiElement.setAttribute("id", "ui-section");
-        this.uiElement.classList.add("section-wrapper");
+    constructor(rootElementSelector: string){
+        // Interface wrapper
+        this._interfaceHTML = document.createElement("section");
+        this._interfaceHTML.setAttribute("id", "app-interface");
+        this._interfaceHTML.classList.add("app-wrapper");
 
-        // ===  Header section  ===
-        const uiHeader = document.createElement("header");
-        uiHeader.classList.add("section-header");
+        // Root element
+        this._rootElement = document.querySelector(rootElementSelector);
+    }
 
-        const header = document.createElement("h1");
-        header.innerText = "Team Manager";
+    protected get root(): Element | null
+    {
+        return this._rootElement;
+    }
 
-        uiHeader.appendChild(header);
+    protected get interfaceHTML() : HTMLElement
+    {
+        return this._interfaceHTML;
+    }
 
-        // ===  Main section    ===
-        const uiMain = document.createElement("section");
+    protected get footerLinks() : MediaLink[]
+    {
+        return this._footerLinks;
+    }
 
-        // Input part
-        const input = document.createElement("div");
-        input.classList.add("input-wrapper");
+    protected get teams() : Team []
+    {
+        return this._teams;
+    }
 
+    protected abstract submitHandler(e: Event) : void 
+    protected abstract deleteHandler(e: Event) : void
+    protected abstract editHandler(e: Event) : void
+
+    public renderInterface() : void
+    {
+        if(!this.root) throw new Error("Root element not found!");
+
+        // Link app interface to the root
+        this.root.appendChild(this.interfaceHTML);
+
+        // Render interface
+        this.renderHeader(this.interfaceHTML);
+        this.renderMain(this.interfaceHTML, this.teams);
+        this.renderFooter(this.interfaceHTML, this.footerLinks);
+    }
+
+    protected renderHeader(rootElement: HTMLElement) : void
+    {
+        const existing = rootElement.querySelector("#app-header");
+        if(existing) return;
+        
+        const header = document.createElement("header");
+        header.setAttribute("id", "app-header");
+        header.classList.add("header-wrapper");
+
+        const heading = document.createElement("h1");
+        heading.innerText = "Team Manager";
+
+        header.appendChild(heading);
+
+        rootElement.insertAdjacentElement("afterbegin", header);
+    }
+
+    protected renderMain(rootElement: HTMLElement, teamsArr: Team[]) : void
+    {
+        const existing = rootElement.querySelector("#app-main");
+        if(existing) return;
+
+        const mainSection = document.createElement("section");
+        mainSection.setAttribute("id", "app-main");
+        mainSection.classList.add("main-wrapper");
+
+        this.renderMainInput(mainSection, teamsArr);
+        this.renderMainContent(mainSection, teamsArr);
+
+        rootElement.appendChild(mainSection);
+    }
+
+    protected renderMainInput(rootElement: HTMLElement, teamsArr: Team[]) : void
+    {
+        const existing = rootElement.querySelector("#app-main-input");
+        if(existing) return;
+
+        const inputBlock = document.createElement("div");
+        inputBlock.setAttribute("id", "app-main-input");
+        inputBlock.classList.add("input-wrapper");
+
+        // Form
         const form = document.createElement("form");
         form.classList.add("input-form");
-        form.addEventListener("submit", sumbitHandler);
+        form.addEventListener("submit", this.submitHandler.bind(this));
 
+        // Name Text Input
         const nameInput = document.createElement("input");
         nameInput.setAttribute("type", "text");
         nameInput.setAttribute("name", "name");
         nameInput.setAttribute("placeholder", "Name");
         nameInput.setAttribute("required", "true");
 
+        // Team Select Input
         const teamInput = document.createElement("select");
         teamInput.setAttribute("name", "team");
         teamInput.setAttribute("required", "true");
 
-        const teamOptions = this.teams.map(singleTeam => {
+        // Select options
+        const teamOptions = teamsArr.map(singleTeam => {
             const option = document.createElement("option");
             option.setAttribute("id", singleTeam.id);
             option.label = singleTeam.label;
@@ -51,55 +121,90 @@ export default class AppUI{
 
             return option;
         })
+
         teamInput.append(...teamOptions);
 
+        // Submit btn
         const submitBtn = document.createElement("input");
         submitBtn.setAttribute("type", "submit");
         submitBtn.value = "Add player";
 
-
+        // Populate form
         form.append(nameInput, teamInput, submitBtn);
-        input.appendChild(form);
 
+        // Populate Input Block
+        inputBlock.appendChild(form);
 
-        // Content part
-        const content = document.createElement("div");
-        content.classList.add("content-wrapper");
+        // Populate root element 
+        rootElement.appendChild(inputBlock);
+    }
 
-        uiMain.append(input, content)
+    protected renderMainContent(rootElement: HTMLElement, teamsArr: Team[]) : void
+    {
+        const existing = rootElement.querySelector("#app-main-content");
+        if(existing) return;
 
-        // ===  Footer section  ===
-        const uiFooter = document.createElement("footer");
-        uiFooter.classList.add("section-footer");
+        // Content wrapper
+        const contentBlock = document.createElement("div");
+        contentBlock.setAttribute("id", "app-main-content");
+        contentBlock.classList.add("content-wrapper");
 
-        const socialMedia = document.createElement("div");
-        socialMedia.classList.add("media-wraper");
-        
-        const links = this.footerLinks.map(linkObj => {
-            const icon = `<svg viewBox="0 0 14 16" width="50">
-            <use xlink:href="${linkObj.iconURI}"> 
-            </svg>`;
+        // Render teams
+        const teamsContent = teamsArr.map((teamObj: Team)=>{
+            const teamContainer = document.createElement("div");
+            teamContainer.classList.add("team-wrapper");
+
+            const teamHeading = document.createElement("h3");
+            teamHeading.classList.add("team-heading");
+            teamHeading.innerHTML = teamObj.label
+
+            const teamList = document.createElement("ul");
+            teamList.setAttribute("id", `team-${teamObj.id}`);
+
+            return teamContainer;
+        });
+
+        // Append team containers
+        contentBlock.append(...teamsContent);
+
+        // Populate root element 
+        rootElement.appendChild(contentBlock);
+    }
+
+    protected renderFooter(rootElement: HTMLElement, mediaLinks: MediaLink[])
+    {
+        const existing = rootElement.querySelector("#app-footer");
+        if(existing) return;
+
+        const footer = document.createElement("footer");
+        footer.setAttribute("id", "app-footer");
+        footer.classList.add("footer-wrapper");
+
+        const mediaBlock = document.createElement("div");
+        mediaBlock.classList.add("media-wraper");
+
+        const links = mediaLinks.map((linkObj: MediaLink)=>{
+            const img = document.createElement("img");
+            img.setAttribute("src", linkObj.iconURI);
+            img.setAttribute("alt", linkObj.label);
+            img.classList.add("media-icon");
 
             const link = document.createElement("a");
             link.setAttribute("href", linkObj.link)
             link.setAttribute("aria-label", linkObj.label)
-            link.innerHTML += icon;
+            link.appendChild(img);
 
             return link;
         })
 
-        socialMedia.append(...links);
+        mediaBlock.append(...links);
 
-        uiFooter.appendChild(socialMedia);
+        footer.appendChild(mediaBlock);
 
-        this.uiElement.append(uiHeader, uiMain, uiFooter);
+        rootElement.insertAdjacentElement("beforeend", footer);
     }
 
-    public renderHeader(){
-
-    }
-
-    public render
-
-    public render
+    protected renderAddPlayer(){}
+    protected renderDelPlayer(){}
+    protected renderUpdatePlayer(){}
 }
