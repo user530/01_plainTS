@@ -26,3 +26,4 @@ export const Teams = [
     { id: "3", label: "Chariot", value: "chariot" },
     { id: "4", label: "Dynamo", value: "dynamo" },
 ];
+export const delImgURL = "https://www.svgrepo.com/show/500535/delete.svg";

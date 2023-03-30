@@ -1,4 +1,4 @@
-import { Teams, SocialMediaLinks } from "./consts.js";
+import { Teams, SocialMediaLinks, delImgURL } from "./consts.js";
 export default class AppUI {
     constructor(rootElementSelector) {
         this._teams = Teams;
@@ -62,6 +62,10 @@ export default class AppUI {
         const inputBlock = document.createElement("div");
         inputBlock.setAttribute("id", "app-main-input");
         inputBlock.classList.add("input-wrapper");
+        // Heading
+        const heading = document.createElement("h2");
+        heading.classList.add("input-heading");
+        heading.innerText = "Add new player";
         // Form
         const form = document.createElement("form");
         form.classList.add("input-form");
@@ -92,7 +96,7 @@ export default class AppUI {
         // Populate form
         form.append(nameInput, teamInput, submitBtn);
         // Populate Input Block
-        inputBlock.appendChild(form);
+        inputBlock.append(heading, form);
         // Populate root element 
         rootElement.appendChild(inputBlock);
     }
@@ -113,6 +117,8 @@ export default class AppUI {
             teamHeading.innerHTML = teamObj.label;
             const teamList = document.createElement("ul");
             teamList.setAttribute("id", `team-${teamObj.id}`);
+            teamList.classList.add("team-list");
+            teamContainer.append(teamHeading, teamList);
             return teamContainer;
         });
         // Append team containers
@@ -128,7 +134,7 @@ export default class AppUI {
         footer.setAttribute("id", "app-footer");
         footer.classList.add("footer-wrapper");
         const mediaBlock = document.createElement("div");
-        mediaBlock.classList.add("media-wraper");
+        mediaBlock.classList.add("media-wrapper");
         const links = mediaLinks.map((linkObj) => {
             const img = document.createElement("img");
             img.setAttribute("src", linkObj.iconURI);
@@ -144,7 +150,38 @@ export default class AppUI {
         footer.appendChild(mediaBlock);
         rootElement.insertAdjacentElement("beforeend", footer);
     }
-    renderAddPlayer() { }
-    renderDelPlayer() { }
-    renderUpdatePlayer() { }
+    renderAddPlayer(newPlayer) {
+        const { id, name, team } = newPlayer;
+        const teamList = this.findTeamList(team.id);
+        if (!teamList)
+            return;
+        const playerElement = document.createElement("li");
+        playerElement.setAttribute("id", `player-${id}`);
+        playerElement.classList.add("player-wrapper");
+        // Player name span
+        const nameElement = document.createElement("span");
+        nameElement.classList.add("player-span");
+        nameElement.innerText = name;
+        // Delete player icon
+        const delIcon = document.createElement("img");
+        delIcon.setAttribute("src", delImgURL);
+        delIcon.setAttribute("alt", "delete");
+        delIcon.setAttribute("data-playerid", id);
+        delIcon.classList.add("player-icon");
+        delIcon.addEventListener("click", this.deleteHandler.bind(this));
+        // Populate player element
+        playerElement.append(nameElement, delIcon);
+        // Add Player element to the appropriate team list
+        teamList.appendChild(playerElement);
+    }
+    renderDelPlayer(playerId) {
+        const playerElement = document.querySelector(`#player-${playerId}`);
+        if (!playerElement)
+            return;
+        // Remove player item
+        playerElement.remove();
+    }
+    findTeamList(teamId) {
+        return document.querySelector(`ul#team-${teamId}`);
+    }
 }

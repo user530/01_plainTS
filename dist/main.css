@@ -1,0 +1,198 @@
+*{
+    box-sizing: border-box;
+}
+
+h1, h2, h3, p, ul{
+    padding: 0;
+    margin: 0;
+}
+
+img{
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
+
+input, select{
+    outline: none;
+    border: 0;
+    padding: 0;
+    font-family: inherit;
+    font-size: inherit;
+    background-color: transparent;
+
+}
+
+input::placeholder{
+    font-family: inherit;
+    font-size: inherit;
+}
+
+body{
+    margin: 0;
+    font-family: sans-serif;
+}
+
+.app-wrapper{
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Header */
+
+.header-wrapper{
+    padding: 40px 0px;
+    text-align: center;
+    background-color: darkseagreen;
+    border-bottom: 1px solid #000;
+}
+
+.header-wrapper h1{
+    font-size: 60px;
+    text-shadow: 1px 1px white;
+}
+
+/* Main */
+
+.main-wrapper{
+    width: 80%;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    margin-right: auto;
+    margin-left: auto;
+}
+
+.input-wrapper{
+    padding: 40px 60px;
+    background-color: darkseagreen;
+    border: 1px solid #000;
+    text-align: center;
+}
+
+.input-heading{
+    font-size: 36px;
+    padding-bottom: 30px;
+}
+
+.input-form{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    row-gap: 20px;
+}
+
+.input-form input[name=name]{
+    background-color: white;
+    border-bottom: 1px solid #000;
+    max-width: 300px;
+}
+
+.input-form select[name=team]{
+    background-color: white;
+}
+
+.input-form input[type=submit]{
+    width: 200px;
+    height: 30px;
+    font-size: 24px;
+    font-weight: bold;
+    background-color: gold;
+    border-radius: 10px;
+}
+
+.content-wrapper{
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    column-gap: 40px;
+    row-gap: 40px;
+
+    padding: 40px 0;
+}
+
+.team-wrapper{
+    border: 1px solid black;
+    width: 100%;
+    min-height: 150px;
+}
+
+.team-heading{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    text-align: center;
+    border-bottom: 1px solid black;
+}
+
+.team-wrapper:nth-child(4n+1) .team-heading{
+    background-color: red
+}
+
+.team-wrapper:nth-child(4n+2) .team-heading{
+    background-color: blue;
+    color: white;
+}
+
+.team-wrapper:nth-child(4n+3) .team-heading{
+    background-color: orange;
+}
+
+.team-wrapper:nth-child(4n+4) .team-heading{
+    background-color: purple;
+    color: white;
+}
+
+.team-list{
+    list-style-type: none;
+}
+
+.player-wrapper{
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    transition: 0.3s;
+}
+
+.player-wrapper:hover{
+    background-color: rgba(0, 0, 0, 0.1);
+}
+
+.player-span{
+    flex-grow: 1;
+    padding-right: 10px;
+}
+
+.player-icon{
+    flex-shrink: 0;
+}
+
+.player-icon {
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+
+/* Footer */
+
+.footer-wrapper{
+    margin-top: auto;
+    padding: 20px;
+    background-color: grey;
+    border-top: 1px solid #000;
+}
+
+.media-wrapper{
+    display: flex;
+    column-gap: 16px;
+    justify-content: center;
+    align-items: center;
+}
+
+.media-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}

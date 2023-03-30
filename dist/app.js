@@ -4,30 +4,24 @@ export default class TeamApp extends AppUI {
         super(rootElementSelector);
         this._players = [];
         this._rootElement = document.querySelector(rootElementSelector);
-        // this._teams = [];
-        // this._players = [];
     }
     findTeamByName(teamName) {
         const match = this.teams.find(team => team.value === teamName);
         return match || null;
     }
-    set setPlayers(playersArr) {
+    set players(playersArr) {
         this._players = playersArr;
     }
-    get getPlayers() {
+    get players() {
         return this._players;
     }
     addPlayer(newPlayer) {
-        this.getPlayers.push(newPlayer);
-    }
-    findPlayerById(playerId) {
-        const match = this.getPlayers.find(player => player.id === playerId);
-        return match || null;
+        this.players.push(newPlayer);
     }
     deletePlayer(playerId) {
-        const index = this.getPlayers.findIndex((player) => player.id === playerId);
+        const index = this.players.findIndex((player) => player.id === playerId);
         if (index >= 0)
-            this.getPlayers.splice(index, 1);
+            this.players.splice(index, 1);
     }
     init() {
         try {
@@ -54,16 +48,18 @@ export default class TeamApp extends AppUI {
                 throw new Error("Please, select existing team!");
             if (!nameEl.value.trim())
                 throw new Error("Please, enter non-empty player name!");
-            // Add player to the dataset
-            this.addPlayer({
+            // Create new player
+            const newPlayer = {
                 id: Date.now().toString(),
                 name: String(nameEl.value),
                 team: userTeam
-            });
+            };
+            // Add player to the dataset
+            this.addPlayer(newPlayer);
+            // Render new player
+            this.renderAddPlayer(newPlayer);
             // Clear the name field
             nameEl.value = "";
-            // Render new player
-            this.renderAddPlayer();
         }
         catch (error) {
             console.error(error);
@@ -71,7 +67,13 @@ export default class TeamApp extends AppUI {
         }
     }
     deleteHandler(e) {
-    }
-    editHandler(e) {
+        e.preventDefault();
+        const playerId = e.target.dataset.playerid;
+        if (!playerId)
+            return;
+        // Delete player from the data storage
+        this.deletePlayer(playerId);
+        // Update the UI
+        this.renderDelPlayer(playerId);
     }
 }

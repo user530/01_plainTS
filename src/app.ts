@@ -1,6 +1,5 @@
 import AppUI from "./appUI.js"; 
 import { Player, Team } from "./types.js";
-import { Teams } from "./consts.js"
 
 export default class TeamApp extends AppUI{
     private _players: Player [] = [];
@@ -10,8 +9,6 @@ export default class TeamApp extends AppUI{
     ){
         super(rootElementSelector);
         this._rootElement = document.querySelector(rootElementSelector);
-        // this._teams = [];
-        // this._players = [];
     }
 
     private findTeamByName(teamName: string) : Team | null
@@ -21,33 +18,26 @@ export default class TeamApp extends AppUI{
         return match || null;
     }
 
-    private set setPlayers(playersArr: Player[])
+    private set players(playersArr: Player[])
     {
         this._players = playersArr;
     }
 
-    private get getPlayers()
+    private get players()
     {
         return this._players;
     }
 
     private addPlayer(newPlayer : Player) : void
     {
-        this.getPlayers.push(newPlayer);
-    }
-
-    private findPlayerById(playerId: string) : Player | null
-    {
-        const match = this.getPlayers.find(player=>player.id === playerId);
-
-        return match || null;
+        this.players.push(newPlayer);
     }
 
     private deletePlayer(playerId: string): void
     {
-        const index = this.getPlayers.findIndex((player)=>player.id === playerId);
+        const index = this.players.findIndex((player)=>player.id === playerId);
 
-        if(index >= 0)this.getPlayers.splice(index, 1);
+        if(index >= 0)this.players.splice(index, 1);
     }
 
     public init()
@@ -83,18 +73,21 @@ export default class TeamApp extends AppUI{
             if(!(nameEl.value as string).trim())
                 throw new Error("Please, enter non-empty player name!");
 
-            // Add player to the dataset
-            this.addPlayer({
+            // Create new player
+            const newPlayer = {
                 id: Date.now().toString(), 
                 name: String(nameEl.value), 
                 team: userTeam
-            })
+            }
+
+            // Add player to the dataset
+            this.addPlayer(newPlayer)
+            
+            // Render new player
+            this.renderAddPlayer(newPlayer);
 
             // Clear the name field
             nameEl.value = "";
-
-            // Render new player
-            this.renderAddPlayer();
 
         } catch (error) {
             console.error(error);
@@ -104,11 +97,16 @@ export default class TeamApp extends AppUI{
 
     protected deleteHandler(e: Event): void 
     {
-        
-    }
+        e.preventDefault();
 
-    protected editHandler(e: Event): void {
+        const playerId = (e.target as HTMLElement).dataset.playerid;
+        if(!playerId)return;
         
+        // Delete player from the data storage
+        this.deletePlayer(playerId);
+
+        // Update the UI
+        this.renderDelPlayer(playerId);
     }
 
 }

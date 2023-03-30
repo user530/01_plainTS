@@ -31,3 +31,5 @@ export const Teams : Team [] =
     {id: "3", label: "Chariot", value: "chariot"},
     {id: "4", label: "Dynamo", value: "dynamo"},
 ]
+
+export const delImgURL : string = "https://www.svgrepo.com/show/500535/delete.svg"

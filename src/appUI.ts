@@ -1,5 +1,5 @@
 import { MediaLink, Player, Team } from "./types.js";
-import { Teams, SocialMediaLinks } from "./consts.js";
+import { Teams, SocialMediaLinks, delImgURL } from "./consts.js";
 
 export default abstract class AppUI{
     protected _rootElement : Element | null;
@@ -39,7 +39,6 @@ export default abstract class AppUI{
 
     protected abstract submitHandler(e: Event) : void 
     protected abstract deleteHandler(e: Event) : void
-    protected abstract editHandler(e: Event) : void
 
     public renderInterface() : void
     {
@@ -95,6 +94,11 @@ export default abstract class AppUI{
         inputBlock.setAttribute("id", "app-main-input");
         inputBlock.classList.add("input-wrapper");
 
+        // Heading
+        const heading = document.createElement("h2");
+        heading.classList.add("input-heading");
+        heading.innerText = "Add new player";
+
         // Form
         const form = document.createElement("form");
         form.classList.add("input-form");
@@ -133,7 +137,7 @@ export default abstract class AppUI{
         form.append(nameInput, teamInput, submitBtn);
 
         // Populate Input Block
-        inputBlock.appendChild(form);
+        inputBlock.append(heading, form);
 
         // Populate root element 
         rootElement.appendChild(inputBlock);
@@ -160,6 +164,9 @@ export default abstract class AppUI{
 
             const teamList = document.createElement("ul");
             teamList.setAttribute("id", `team-${teamObj.id}`);
+            teamList.classList.add("team-list");
+
+            teamContainer.append(teamHeading, teamList);
 
             return teamContainer;
         });
@@ -171,7 +178,7 @@ export default abstract class AppUI{
         rootElement.appendChild(contentBlock);
     }
 
-    protected renderFooter(rootElement: HTMLElement, mediaLinks: MediaLink[])
+    protected renderFooter(rootElement: HTMLElement, mediaLinks: MediaLink[]) : void
     {
         const existing = rootElement.querySelector("#app-footer");
         if(existing) return;
@@ -181,7 +188,7 @@ export default abstract class AppUI{
         footer.classList.add("footer-wrapper");
 
         const mediaBlock = document.createElement("div");
-        mediaBlock.classList.add("media-wraper");
+        mediaBlock.classList.add("media-wrapper");
 
         const links = mediaLinks.map((linkObj: MediaLink)=>{
             const img = document.createElement("img");
@@ -204,7 +211,49 @@ export default abstract class AppUI{
         rootElement.insertAdjacentElement("beforeend", footer);
     }
 
-    protected renderAddPlayer(){}
-    protected renderDelPlayer(){}
-    protected renderUpdatePlayer(){}
+    protected renderAddPlayer(newPlayer: Player) : void
+    {
+        const {id, name, team} = newPlayer;
+        const teamList = this.findTeamList(team.id);
+
+        if(!teamList)return;
+
+        const playerElement = document.createElement("li");
+        playerElement.setAttribute("id", `player-${id}`);
+        playerElement.classList.add("player-wrapper");
+
+        // Player name span
+        const nameElement = document.createElement("span");
+        nameElement.classList.add("player-span")
+        nameElement.innerText = name;
+
+        // Delete player icon
+        const delIcon = document.createElement("img");
+        delIcon.setAttribute("src", delImgURL);
+        delIcon.setAttribute("alt", "delete");
+        delIcon.setAttribute("data-playerid", id);
+        delIcon.classList.add("player-icon");
+        delIcon.addEventListener("click", this.deleteHandler.bind(this))
+
+        // Populate player element
+        playerElement.append(nameElement, delIcon);
+
+        // Add Player element to the appropriate team list
+        teamList.appendChild(playerElement);
+    }
+
+    protected renderDelPlayer(playerId: string) : void
+    {
+        const playerElement = document.querySelector(`#player-${playerId}`);
+        if(!playerElement) return;
+
+        // Remove player item
+        playerElement.remove();
+    }
+
+    protected findTeamList(teamId: string) : HTMLElement | null
+    {
+        return document.querySelector(`ul#team-${teamId}`);
+    }
+
 }
